@@ -7,7 +7,7 @@
 
 ## Verification Levels
 1. **Compilation Check:** Gradle build (`:app:assembleDebug`) compiles without errors.
-2. **Unit / Integration Testing:** JUnit test suite execution.
+2. **Unit / Integration Testing:** JUnit test suite execution (`:app:testDebugUnitTest`).
 3. **App Launch Check:** Successful installation and screen render on Samsung Galaxy S23.
 4. **Permission Flow Check:** Location permission dialogs behave correctly on physical device.
 5. **Real-World GPS Verification:** Outdoor field testing to measure GPS accuracy, speed calculation, and signal retention.
@@ -18,4 +18,6 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 2026-03-03 | 6231853 | App Launch | Samsung S23 | PASS | Initial baseline Compose template launched successfully on physical S23. |
 | 2026-03-03 | 6231853 | Gradle Build | Local Machine | PASS | `:app:assembleDebug` built cleanly with 0 errors. |
-| 2026-03-03 | Pending | Permission & GPS | Samsung S23 | PASS | Physical S23 granted fine location permission, handled GPS disabled check, and rendered live GPS updates (lat: 19.0390978, lng: 73.0697035, accuracy: 20.5m). |
+| 2026-03-03 | 1d935f6 | Permission & GPS | Samsung S23 | PASS | Physical S23 granted fine location permission, handled GPS disabled check, and rendered live GPS updates (lat: 19.0390978, lng: 73.0697035, accuracy: 20.5m). |
+| 2026-03-03 | Pending | Unit Tests | Local Machine | PASS | `HaversineDistanceCalculatorTest` and `RideViewModelTest` passed (9 passed, 0 failed). |
+| 2026-03-03 | Pending | Ride Flow Test | Samsung S23 | PASS | Physical S23 verified complete START → RECORDING (live timer, current speed, distance, avg speed, max speed) → STOP → RESET flow. |

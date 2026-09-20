@@ -1,46 +1,51 @@
 # Handoff & Context Checkpoint: Pace1
 
 ## Context Checkpoint Counter
-- **Substantial Changes Since Last Checkpoint:** 1 / 5
-- **Current Milestone:** V1.0 - GPS Ride Recording Foundation
-- **Current Task:** Implemented location permission handling, FusedLocationProvider wrapper (`DefaultLocationClient`), `LocationPoint` domain model, and live location update stream. Tested & verified on physical Samsung S23.
+- **Substantial Changes Since Last Checkpoint:** 2 / 5
+- **Current Milestone:** V1.0 - Ride State Machine & Live Metrics
+- **Current Task:** Implemented `RideState` (`IDLE`, `RECORDING`, `STOPPED`), `RideMetrics`, `HaversineDistanceCalculator`, `RideViewModel`, and `RideRecordingScreen`. Added unit tests and verified full START → RECORDING → STOP → RESET flow on physical Samsung Galaxy S23.
 
 ## Repository Details
 - **Project Name:** Pace1
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** `1d935f60f0f22e376048f47a071769a074f5a220`
+- **Latest Commit Hash:** Pending Commit
 
 ## Completed Work
-1. Added location permissions (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`) to `AndroidManifest.xml`.
-2. Added `play-services-location:21.4.0` dependency.
-3. Created `LocationPoint` model containing latitude, longitude, timestamp, altitude, speed, bearing, and accuracy.
-4. Created `LocationClient` interface and `DefaultLocationClient` using `FusedLocationProviderClient` with coroutine `callbackFlow`, permission checking, GPS enabled checking, and `awaitClose` lifecycle safety.
-5. Implemented permission request flow and location dashboard UI in `MainActivity.kt`.
-6. Deployed to physical Samsung Galaxy S23: granted location permissions, verified GPS disabled handling, enabled GPS, and received live raw location updates on screen.
+1. Created `RideState` enum (`IDLE`, `RECORDING`, `STOPPED`).
+2. Created `RideMetrics` data model (elapsed time, distance, current speed, average speed, max speed, accuracy).
+3. Created `HaversineDistanceCalculator` for pure geographic distance calculations.
+4. Created `RideViewModel` managing timer, location updates, and live metrics calculations decoupled from UI.
+5. Created `RideRecordingScreen` with START RIDE, hero current speed, distance, elapsed time, average speed, max speed, GPS accuracy, and STOP RIDE controls.
+6. Created unit test suite (`HaversineDistanceCalculatorTest`, `RideViewModelTest`) - 9 unit tests passed.
+7. Deployed to physical Samsung Galaxy S23 and verified the complete START → RECORDING → STOP → RESET lifecycle on screen.
 
 ## What Was Tested
 - Gradle Debug Assembly: `:app:assembleDebug` (Passed).
-- Physical Device Run & GPS: Installed on physical Samsung Galaxy S23 (`RZCXB208S6L`). Verified permission prompt, permission grant, GPS disabled state detection, and live location update streaming (Lat: `19.0390978`, Lng: `73.0697035`, Accuracy: `20.5m`).
+- Unit Tests: `:app:testDebugUnitTest` (9 passed, 0 failed).
+- Physical Device Run & Flow: Installed on physical Samsung Galaxy S23 (`RZCXB208S6L`). Verified START RIDE transition, live timer counting, metrics updating, STOP RIDE transition, metric freezing, and NEW RIDE reset.
 
-## Known Issues / Bugs
-- None.
+## Known Limitations / Bugs
+- Recording currently runs in foreground activity scope. Background / lock-screen tracking will be added in V1.2 via Foreground Service.
+- Ride data is held in-memory during recording and not yet saved to local Room database (reserved for V1.3).
 
 ## Files Modified / Created
-- `app/src/main/AndroidManifest.xml`
-- `app/build.gradle.kts`
-- `gradle/libs.versions.toml`
-- `app/src/main/java/com/aavishkar/pace1/data/model/LocationPoint.kt`
-- `app/src/main/java/com/aavishkar/pace1/location/LocationClient.kt`
-- `app/src/main/java/com/aavishkar/pace1/location/DefaultLocationClient.kt`
+- `app/src/main/java/com/aavishkar/pace1/data/model/RideState.kt`
+- `app/src/main/java/com/aavishkar/pace1/data/model/RideMetrics.kt`
+- `app/src/main/java/com/aavishkar/pace1/location/HaversineDistanceCalculator.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/RideViewModel.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/RideRecordingScreen.kt`
 - `app/src/main/java/com/aavishkar/pace1/MainActivity.kt`
+- `app/src/test/java/com/aavishkar/pace1/HaversineDistanceCalculatorTest.kt`
+- `app/src/test/java/com/aavishkar/pace1/RideViewModelTest.kt`
+- `gradle/libs.versions.toml`
+- `app/build.gradle.kts`
 - `docs/CURRENT_STATE.md`
 - `docs/TESTING.md`
 - `docs/HANDOFF.md`
 
 ## Next Recommended Actions
-1. Begin second step of V1.0 GPS Ride Recording:
-   - Implement Ride State Machine (`IDLE`, `RECORDING`, `PAUSED`, `STOPPED`).
-   - Implement real-time metrics calculation (Elapsed Time timer, cumulative distance calculation using Haversine / `Location.distanceBetween`, current speed, average speed, max speed).
-   - Build Ride Recording Compose UI with Start, Pause, Resume, and Stop controls.
+1. Next step in V1.0 / V1.1 progression:
+   - Perform initial outdoor field test to measure raw GPS distance accuracy and speed stability.
+   - Begin V1.1 GPS filtering & accuracy improvements (suppressing stationary noise, filtering low-accuracy fixes).
