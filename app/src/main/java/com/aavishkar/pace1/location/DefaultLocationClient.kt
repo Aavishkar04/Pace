@@ -64,7 +64,8 @@ class DefaultLocationClient(
                         accuracy = location.accuracy,
                         verticalAccuracy = verticalAcc,
                         speedAccuracy = speedAcc,
-                        provider = location.provider ?: "fused"
+                        provider = location.provider ?: "fused",
+                        hasSpeed = location.hasSpeed()
                     )
                     trySend(LocationUpdateState.Success(point))
                 }

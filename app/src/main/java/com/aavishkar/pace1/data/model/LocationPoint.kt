@@ -13,5 +13,6 @@ data class LocationPoint(
     val accuracy: Float,
     val verticalAccuracy: Float = 0f,
     val speedAccuracy: Float = 0f,
-    val provider: String = "fused"
+    val provider: String = "fused",
+    val hasSpeed: Boolean = false
 )

@@ -10,7 +10,7 @@
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** Pending Commit
+- **Latest Commit Hash:** `19d6236d6118e37aaf3862ccb4537b24a4dc4e75`
 
 ## Completed Work
 1. **Stationary Noise Filter:** Implemented conservative movement filter in `RideRepository.kt` suppressing stationary GPS jitter (< 2.5m or < 0.8 m/s speed) and rejecting unrealistic GPS jumps (> 35 m/s). Filtered speed stays `0.0 km/h` and distance stays `0m` when stationary on a table.

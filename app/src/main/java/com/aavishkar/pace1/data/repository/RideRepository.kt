@@ -104,11 +104,19 @@ class RideRepository(
             )
             val deltaTimeSec = maxOf(0.1f, (point.timestamp - previousPoint.timestamp) / 1000f)
             val impliedSpeed = deltaDistance / deltaTimeSec
+            
+            // FusedLocationProvider often reports speed exactly 0.0 when it detects the phone is perfectly still
+            val isReportedStationary = point.hasSpeed && point.speed < 0.5f
 
             if (impliedSpeed > 35.0f && deltaDistance > 30.0f) {
                 // Unrealistic GPS jump rejection
                 isAccepted = false
-            } else if (deltaDistance < 2.5f || impliedSpeed < 0.8f) {
+            } else if (isReportedStationary && deltaDistance < 10.0f) {
+                // System says we are stationary, and the jump is small. Trust it.
+                isAccepted = true
+                addedDistance = 0f
+                filteredSpeed = 0f
+            } else if (deltaDistance < 3.0f || impliedSpeed < 0.8f) {
                 // Stationary noise / table jitter -> zero speed, 0 added distance
                 isAccepted = true
                 addedDistance = 0f
@@ -117,12 +125,12 @@ class RideRepository(
                 // Valid cycling movement
                 isAccepted = true
                 addedDistance = deltaDistance
-                filteredSpeed = if (point.speed > 0f) point.speed else impliedSpeed
+                filteredSpeed = if (point.hasSpeed && point.speed > 0f) point.speed else impliedSpeed
             }
         } else {
             // First point received
             isAccepted = true
-            filteredSpeed = if (point.speed >= 0.8f) point.speed else 0f
+            filteredSpeed = if (point.hasSpeed && point.speed >= 0.8f) point.speed else 0f
         }
 
         val newAccepted = if (isAccepted) currentMetrics.acceptedPoints + 1 else currentMetrics.acceptedPoints

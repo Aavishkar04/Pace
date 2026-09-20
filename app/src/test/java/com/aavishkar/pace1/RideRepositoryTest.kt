@@ -43,8 +43,8 @@ class RideRepositoryTest {
         val rideId = repository.startNewRide()
 
         // 10 seconds apart (100.3 meters / 10s = ~10 m/s = 36 km/h)
-        val p1 = LocationPoint(19.0390978, 73.0697035, 1000L, 0.0, 5.0f, 0f, 3.0f)
-        val p2 = LocationPoint(19.0400000, 73.0697035, 11000L, 0.0, 10.0f, 0f, 3.0f)
+        val p1 = LocationPoint(19.0390978, 73.0697035, 1000L, 0.0, 5.0f, 0f, 3.0f, hasSpeed = true)
+        val p2 = LocationPoint(19.0400000, 73.0697035, 11000L, 0.0, 10.0f, 0f, 3.0f, hasSpeed = true)
 
         repository.addLocationPoint(p1)
         assertEquals(0f, repository.activeRideMetrics.value.distanceMeters, 0.001f)
