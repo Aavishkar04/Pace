@@ -10,7 +10,7 @@
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** Pending Commit
+- **Latest Commit Hash:** `7766635b1f75e65dc628052e81d813bfe175c32a`
 
 ## Completed Work
 1. Created `RideState` enum (`IDLE`, `RECORDING`, `STOPPED`).
