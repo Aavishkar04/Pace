@@ -42,12 +42,13 @@ class RideRepositoryTest {
     fun addLocationPoint_accumulatesDistanceGeographicallyAndPersistsToDao() = runTest {
         val rideId = repository.startNewRide()
 
+        // 10 seconds apart (100.3 meters / 10s = ~10 m/s = 36 km/h)
         val p1 = LocationPoint(19.0390978, 73.0697035, 1000L, 0.0, 5.0f, 0f, 3.0f)
-        val p2 = LocationPoint(19.0400000, 73.0697035, 2000L, 0.0, 10.0f, 0f, 3.0f)
+        val p2 = LocationPoint(19.0400000, 73.0697035, 11000L, 0.0, 10.0f, 0f, 3.0f)
 
         repository.addLocationPoint(p1)
         assertEquals(0f, repository.activeRideMetrics.value.distanceMeters, 0.001f)
-        assertEquals(5.0f, repository.activeRideMetrics.value.currentSpeedMps, 0.001f)
+        assertEquals(5.0f, repository.activeRideMetrics.value.rawSpeedMps, 0.001f)
 
         repository.addLocationPoint(p2)
         val dist = repository.activeRideMetrics.value.distanceMeters
@@ -105,7 +106,7 @@ class RideRepositoryTest {
         val metrics = repository.activeRideMetrics.value
         assertEquals(30L, metrics.elapsedTimeSeconds)
         assertEquals(300f, metrics.distanceMeters, 0.001f)
-        assertEquals(8.0f, metrics.currentSpeedMps, 0.001f)
+        assertEquals(8.0f, metrics.rawSpeedMps, 0.001f)
         assertEquals(10f, metrics.averageSpeedMps, 0.001f)
         assertEquals(12f, metrics.maxSpeedMps, 0.001f)
     }
@@ -128,6 +129,10 @@ class RideRepositoryTest {
 
         override suspend fun getActiveRecordingRide(): RideEntity? {
             return rides.values.lastOrNull { it.status == "RECORDING" }
+        }
+
+        override fun getAllCompletedRides(): Flow<List<RideEntity>> {
+            return flowOf(rides.values.filter { it.status == "STOPPED" })
         }
 
         override fun observeActiveRecordingRide(): Flow<RideEntity?> {

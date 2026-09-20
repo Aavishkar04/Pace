@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aavishkar.pace1.data.local.entity.RideEntity
 import com.aavishkar.pace1.data.model.RideMetrics
 import com.aavishkar.pace1.data.model.RideState
 import com.aavishkar.pace1.data.repository.RideRepository
@@ -21,11 +22,18 @@ import kotlinx.coroutines.launch
  */
 class RideViewModel(
     private val repository: RideRepository,
-    private val locationClient: LocationClient
+    locationClient: LocationClient
 ) : ViewModel() {
 
     val rideState: StateFlow<RideState> = repository.activeRideState
     val rideMetrics: StateFlow<RideMetrics> = repository.activeRideMetrics
+
+    val completedRides: StateFlow<List<RideEntity>> =
+        repository.completedRides.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
 
     val locationUpdateState: StateFlow<LocationUpdateState?> =
         locationClient.getLocationUpdates(1000L).stateIn(

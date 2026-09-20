@@ -15,12 +15,12 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.aavishkar.pace1.MainActivity
 import com.aavishkar.pace1.R
-import com.aavishkar.pace1.data.local.PaceDatabase
 import com.aavishkar.pace1.data.model.RideMetrics
 import com.aavishkar.pace1.data.repository.RideRepository
 import com.aavishkar.pace1.location.DefaultLocationClient
 import com.aavishkar.pace1.location.LocationClient
 import com.aavishkar.pace1.location.LocationUpdateState
+import com.aavishkar.pace1.sensor.SensorCollector
 import com.aavishkar.pace1.ui.formatDistance
 import com.aavishkar.pace1.ui.formatElapsedTime
 import com.aavishkar.pace1.ui.formatSpeedKmh
@@ -34,8 +34,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Foreground Service maintaining ride recording, location tracking, and Room persistence
- * across background, lock screen, and app recreation events.
+ * Foreground Service maintaining ride recording, sensor collection, location tracking,
+ * and Room persistence across background, lock screen, and app recreation events.
  */
 class RideRecordingService : Service() {
 
@@ -43,6 +43,7 @@ class RideRecordingService : Service() {
 
     private lateinit var repository: RideRepository
     private lateinit var locationClient: LocationClient
+    private lateinit var sensorCollector: SensorCollector
 
     private var locationJob: Job? = null
     private var timerJob: Job? = null
@@ -55,6 +56,16 @@ class RideRecordingService : Service() {
             context = applicationContext,
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
         )
+        sensorCollector = SensorCollector(applicationContext)
+        sensorCollector.startListening()
+
+        val health = sensorCollector.sensorHealth
+        repository.updateSensorHealth(
+            hasAccel = health.hasAccelerometer,
+            hasGyro = health.hasGyroscope,
+            hasBaro = health.hasBarometer
+        )
+
         createNotificationChannel()
     }
 
@@ -183,6 +194,7 @@ class RideRecordingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        sensorCollector.stopListening()
         serviceScope.cancel()
     }
 

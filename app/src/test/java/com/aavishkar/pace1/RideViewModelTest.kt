@@ -83,6 +83,9 @@ class RideViewModelTest {
         override suspend fun getActiveRecordingRide(): RideEntity? =
             rides.values.lastOrNull { it.status == "RECORDING" }
 
+        override fun getAllCompletedRides(): Flow<List<RideEntity>> =
+            flowOf(rides.values.filter { it.status == "STOPPED" })
+
         override fun observeActiveRecordingRide(): Flow<RideEntity?> =
             flowOf(rides.values.lastOrNull { it.status == "RECORDING" })
 

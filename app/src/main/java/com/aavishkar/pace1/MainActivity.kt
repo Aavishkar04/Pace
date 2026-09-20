@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
                 val rideState by viewModel.rideState.collectAsState()
                 val rideMetrics by viewModel.rideMetrics.collectAsState()
+                val completedRides by viewModel.completedRides.collectAsState()
                 val locationUpdateState by viewModel.locationUpdateState.collectAsState()
 
                 val permissionLauncher = rememberLauncherForActivityResult(
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
                         rideState = rideState,
                         rideMetrics = rideMetrics,
                         locationUpdateState = locationUpdateState,
+                        completedRides = completedRides,
                         hasPermission = hasPermission,
                         onRequestPermission = {
                             val perms = mutableListOf(

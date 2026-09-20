@@ -1,35 +1,33 @@
 # Technical Architecture: Pace1
 
 ## Architecture Pattern
-Pace1 follows modern Android development principles with standard **MVVM (Model-View-ViewModel)** and the **Repository Pattern**, combined with a **Foreground Service** for background lifecycle management and **Room** for local database persistence.
+Pace1 follows modern Android development principles with standard **MVVM (Model-View-ViewModel)** and the **Repository Pattern**, combined with an Android **Foreground Service** for background recording, **SensorManager** for hardware telemetry, and **Room** for local database persistence.
 
 ```
-[ UI Layer (Compose) ]
+[ UI Layer (Compose / RideRecordingScreen) ]
         │
         ▼
-[ ViewModels (StateFlow) ]
+[ ViewModels (RideViewModel) ]
         │
         ▼
 [ Repository Layer (RideRepository - Singleton) ]
-    ┌───┴───────────────────────┬───────────────────────────┐
-    ▼                           ▼                           ▼
-[ Foreground Service ]  [ Location Client ]     [ Room Database ]
-(RideRecordingService)  (FusedLocationClient)     (PaceDatabase)
+    ┌───┴───────────────────────┬───────────────────────────┬───────────────────────────┐
+    ▼                           ▼                           ▼                           ▼
+[ Foreground Service ]  [ Location Client ]     [ Sensor Collector ]    [ Room Database ]
+(RideRecordingService)  (FusedLocationClient)     (SensorManager)         (PaceDatabase)
 ```
-
-## Module Structure
-- `:app` - Single-module Android application.
 
 ## Packages (`com.aavishkar.pace1`)
 - `ui/`
   - `theme/` - Color scheme, typography, and Material 3 theme.
-  - `RideRecordingScreen.kt` - Ride recording dashboard Composable.
-  - `RideViewModel.kt` - ViewModel observing repository state and managing service intents.
+  - `RideRecordingScreen.kt` - Dashboard with RECORDING tab and HISTORY tab.
+  - `RideViewModel.kt` - ViewModel exposing StateFlows for metrics, completed rides, and location states.
 - `data/`
   - `model/` - Domain models (`LocationPoint`, `RideMetrics`, `RideState`).
   - `local/` - Room DB (`PaceDatabase`), DAOs (`RideDao`), and entities (`RideEntity`, `LocationPointEntity`).
   - `repository/` - Data repository (`RideRepository`).
 - `location/` - Fused Location Provider client wrapper (`LocationClient`, `DefaultLocationClient`, `HaversineDistanceCalculator`).
+- `sensor/` - Hardware sensors collector (`SensorCollector`, `SensorHealth`, `LatestSensorData`).
 - `service/` - Android Foreground Service (`RideRecordingService`) managing background location tracking and persistent status bar notification.
 
 ## Build Configuration

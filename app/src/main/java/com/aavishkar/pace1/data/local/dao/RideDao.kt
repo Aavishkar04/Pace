@@ -27,6 +27,9 @@ interface RideDao {
     @Query("SELECT * FROM rides WHERE status = 'RECORDING' ORDER BY startTimeMillis DESC LIMIT 1")
     suspend fun getActiveRecordingRide(): RideEntity?
 
+    @Query("SELECT * FROM rides WHERE status = 'STOPPED' ORDER BY startTimeMillis DESC")
+    fun getAllCompletedRides(): Flow<List<RideEntity>>
+
     @Query("SELECT * FROM rides WHERE status = 'RECORDING' ORDER BY startTimeMillis DESC LIMIT 1")
     fun observeActiveRecordingRide(): Flow<RideEntity?>
 

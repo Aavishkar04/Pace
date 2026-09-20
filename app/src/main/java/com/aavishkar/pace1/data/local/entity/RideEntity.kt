@@ -15,5 +15,11 @@ data class RideEntity(
     val distanceMeters: Float = 0f,
     val maxSpeedMps: Float = 0f,
     val averageSpeedMps: Float = 0f,
+    val totalRawPoints: Int = 0,
+    val acceptedPoints: Int = 0,
+    val rejectedPoints: Int = 0,
+    val hasAccelerometer: Boolean = false,
+    val hasGyroscope: Boolean = false,
+    val hasBarometer: Boolean = false,
     val status: String // "RECORDING", "STOPPED"
 )

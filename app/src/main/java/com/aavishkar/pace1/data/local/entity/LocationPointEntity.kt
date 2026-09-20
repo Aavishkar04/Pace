@@ -29,5 +29,9 @@ data class LocationPointEntity(
     val altitude: Double,
     val speed: Float,
     val bearing: Float,
-    val accuracy: Float
+    val accuracy: Float,
+    val verticalAccuracy: Float = 0f,
+    val speedAccuracy: Float = 0f,
+    val provider: String = "fused",
+    val isAccepted: Boolean = true
 )

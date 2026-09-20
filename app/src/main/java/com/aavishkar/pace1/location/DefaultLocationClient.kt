@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.aavishkar.pace1.data.model.LocationPoint
@@ -45,6 +46,14 @@ class DefaultLocationClient(
             override fun onLocationResult(result: LocationResult) {
                 super.onLocationResult(result)
                 result.locations.lastOrNull()?.let { location ->
+                    val verticalAcc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasVerticalAccuracy()) {
+                        location.verticalAccuracyMeters
+                    } else 0f
+
+                    val speedAcc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && location.hasSpeedAccuracy()) {
+                        location.speedAccuracyMetersPerSecond
+                    } else 0f
+
                     val point = LocationPoint(
                         latitude = location.latitude,
                         longitude = location.longitude,
@@ -52,7 +61,10 @@ class DefaultLocationClient(
                         altitude = location.altitude,
                         speed = location.speed,
                         bearing = location.bearing,
-                        accuracy = location.accuracy
+                        accuracy = location.accuracy,
+                        verticalAccuracy = verticalAcc,
+                        speedAccuracy = speedAcc,
+                        provider = location.provider ?: "fused"
                     )
                     trySend(LocationUpdateState.Success(point))
                 }
