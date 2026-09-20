@@ -10,7 +10,7 @@
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** Pending Commit
+- **Latest Commit Hash:** `1d935f60f0f22e376048f47a071769a074f5a220`
 
 ## Completed Work
 1. Added location permissions (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`) to `AndroidManifest.xml`.
