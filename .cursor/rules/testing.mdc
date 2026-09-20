@@ -1,0 +1,8 @@
+---
+description: Testing and verification guidelines
+globs: **/*Test.kt
+---
+# Testing Guidelines for Pace1
+
+- **Levels:** Build compilation -> Unit tests -> App launch -> Physical device test on Samsung Galaxy S23.
+- **Documentation:** Always log physical device tests and build results in `docs/TESTING.md`.

@@ -1,0 +1,9 @@
+---
+description: GPS and Location handling rules for Pace1
+globs: **/location/**/*.kt
+---
+# GPS & Location Rules for Pace1
+
+- **Accuracy:** Collect reliable raw location data first before adding filters. Preserve raw latitude, longitude, timestamp, altitude, speed, bearing, and horizontal accuracy.
+- **Device Verification:** Real outdoor testing on physical Samsung Galaxy S23 is required before declaring GPS functionality as verified.
+- **Stationary Noise:** Account for stationary drift and zero-speed states.

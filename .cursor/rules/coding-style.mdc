@@ -1,0 +1,9 @@
+---
+description: Kotlin and Jetpack Compose coding style rules
+globs: **/*.kt
+---
+# Coding Style Rules for Pace1
+
+- **Kotlin:** Write clean, idiomatic, and simple Kotlin. Avoid magic numbers and premature abstractions.
+- **Compose:** Prefer standard Material 3 components. Use clear state hoisting.
+- **Project Integrity:** Never change package `com.aavishkar.pace1` or project name `Pace1`.

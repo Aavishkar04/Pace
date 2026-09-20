@@ -1,0 +1,13 @@
+---
+description: Architecture guidelines for Pace1
+globs: **/*.kt
+---
+# Architecture Rules for Pace1
+
+- **Pattern:** MVVM (Model-View-ViewModel) with Repository pattern.
+- **Package structure:** `com.aavishkar.pace1`
+  - `ui/`: Compose UI, ViewModels, Themes.
+  - `data/`: Models, Repositories, Local DB.
+  - `location/`: GPS & Location services.
+- **State Management:** Use `StateFlow` and `State` in Compose. Keep UI components stateless where possible.
+- **Dependencies:** Avoid adding heavy libraries or cloud backends without explicit authorization.
