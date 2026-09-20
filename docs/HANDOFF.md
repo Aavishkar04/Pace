@@ -10,7 +10,7 @@
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** Pending Commit
+- **Latest Commit Hash:** `fd9fc304133620874f560838da43681ae92a81ba`
 
 ## Completed Work
 1. Added foreground service permissions (`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_LOCATION`, `POST_NOTIFICATIONS`) and service declaration to `AndroidManifest.xml`.
