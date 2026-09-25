@@ -10,7 +10,7 @@
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** Pending Commit
+- **Latest Commit Hash:** `dffa2709495d603562aa60206ff869a64bb0eff4`
 
 ## Completed Work & Capabilities
 1. **Live Route Map (`LiveMapView`):** Integrated MapLibre Native SDK (`org.maplibre.gl:android-sdk:11.5.1`) rendering live accepted route polylines and current position markers on Demotiles open vector style (`https://demotiles.maplibre.org/style.json`).
