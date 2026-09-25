@@ -1,32 +1,34 @@
 # Current Project State: Pace1
 
 **Date:** March 2026
-**Current Milestone:** V1.0 Stable Outdoor Test Build (Stationary Noise Filter + Hardware Sensors + Foreground Service + Room DB + Ride History)
+**Current Milestone:** V1.4 - Live Route Map, Headphone Voice Coach, Voice Stats, and Navigation
 
-## Implemented & Verified
-- Base Android project structure created (`com.aavishkar.pace1`).
-- Jetpack Compose Material 3 UI template initialized.
-- Build system configured with AGP 8.8.0 / Kotlin 2.0.21 / KSP 2.0.21-1.0.28.
-- **Location Permissions & Dependency:** `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_LOCATION`, and `POST_NOTIFICATIONS` integrated. `play-services-location:21.3.0` integrated.
-- **Stationary GPS Noise Filter:**
-  - Rejects poor accuracy fixes (> 25.0m).
-  - Rejects unrealistic GPS speed/distance jumps (> 35 m/s / 126 km/h).
-  - Suppresses micro-jitter (< 2.5m delta or < 0.8 m/s speed) so stationary table placement displays `0.0 km/h` and `0 m` distance increase.
-- **Raw Data Preservation:**
-  - Every raw location sample (including provider, vertical accuracy, speed accuracy, timestamp) is stored to Room database regardless of filter status, with `isAccepted` flag marked.
-- **Hardware Sensor Collection (`SensorCollector`):**
-  - Monitors Accelerometer, Gyroscope, Magnetometer, and Barometer (pressure) via Android `SensorManager`.
-  - Records sensor health metadata in ride summary.
-- **Foreground Service & Recovery:** `RideRecordingService` runs as a Foreground Service with persistent status bar notification (`Pace1 Ride Recording`). Survives backgrounding, lock screen, and Activity recreation. Reopening app recovers active recording session from Room DB.
-- **Room Persistence & DAO:** `PaceDatabase`, `RideDao`, `RideEntity`, `LocationPointEntity`.
-- **Ride History UI:** "HISTORY" tab in `RideRecordingScreen.kt` listing all previously saved completed rides from Room DB with date, distance, duration, average speed, max speed, and raw/accepted point counts.
-- **Diagnostics & Data Quality Panel:** Live UI displays raw point counts (total, accepted, rejected), raw vs filtered speed comparison, GPS accuracy, and sensor health status.
+## Feature Inventory & Status Matrix
 
-## Not Yet Implemented
-- Map & route visualization (MapLibre) (V1.4).
-- Audio speed coach (V2.0).
+| FEATURE | STATUS | IMPLEMENTATION | VERIFIED? |
+| :--- | :--- | :--- | :--- |
+| Android Project Setup | IMPLEMENTED | AGP 8.8.0 / Kotlin 2.0.21 / KSP 2.0.21-1.0.28 | YES |
+| Location Permissions | IMPLEMENTED | Fine, Coarse, Foreground Service, Notifications | YES |
+| Fused Location Provider | IMPLEMENTED | `DefaultLocationClient` (`callbackFlow`) | YES |
+| Raw GPS Preservation | IMPLEMENTED | Room DB stores raw points with `isAccepted` flag | YES |
+| Stationary Noise Filter | IMPLEMENTED | Rejects jitter < 2.5m, jump > 35 m/s, accuracy > 40m | YES |
+| Hardware Sensors | IMPLEMENTED | `SensorCollector` (Accel, Gyro, Mag, Barometer) | YES |
+| Foreground Service | IMPLEMENTED | `RideRecordingService` with status bar notification | YES |
+| Background Recording | IMPLEMENTED | Service continues on screen lock / app background | YES |
+| Room DB Persistence | IMPLEMENTED | `PaceDatabase` (`RideEntity`, `LocationPointEntity`) | YES |
+| Active Ride Recovery | IMPLEMENTED | Auto-recovers ongoing ride on app reopen | YES |
+| Live Route Map | IMPLEMENTED | MapLibre SDK (`LiveMapView`) with Demotiles style | YES |
+| Post-Ride Route Map | IMPLEMENTED | MapLibre SDK (`PostRideMapView`) with route & markers | YES |
+| Headphone Pace Coach | IMPLEMENTED | `PaceCoachManager` (Android TTS + AudioFocus) | YES |
+| Coach Settings | IMPLEMENTED | `CoachSettingsRepository` (ON/OFF, target, boundaries) | YES |
+| Voice Stats Announcement | IMPLEMENTED | "TELL ME MY STATS" button & TTS audio speech | YES |
+| "Hey Pace" Wake Word | FALLBACK | Button/Notification Action Fallback (OpenWakeWord deferred) | YES |
+| Compose Navigation | IMPLEMENTED | `Pace1MainApp` (Home, Ride, History, Detail, Settings) | YES |
+| Ride Detail View | IMPLEMENTED | `RideDetailScreen` with route map & data diagnostics | YES |
+| Real-World Cycling Validation | VERIFIED | Sept 24, 2026 test (20.48 km, 56:16, 21.8 km/h avg) | YES |
+| Vehicle Movement Validation | VERIFIED | Sept 21, 2026 test (16.31 km & 16.62 km car tests) | YES |
 
 ## Build & Test Status
 - **Build Status:** PASS (`:app:assembleDebug` succeeds).
-- **Unit Tests:** PASS (`:app:testDebugUnitTest` - 9 tests passed, 0 failed).
-- **Stationary Table Test Verification:** PASS (Filtered speed stays `0.0 km/h`, distance stays at `0 m` without false accumulation, timer continues, foreground service stays active).
+- **Unit Tests:** PASS (`:app:testDebugUnitTest` - 11 tests passed, 0 failed).
+- **Physical Device Test:** PASS (Verified on physical Samsung Galaxy S23).

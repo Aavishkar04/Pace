@@ -8,40 +8,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.aavishkar.pace1.data.local.entity.RideEntity
+import com.aavishkar.pace1.coach.PaceCoachManager
 import com.aavishkar.pace1.data.model.RideMetrics
 import com.aavishkar.pace1.data.model.RideState
 import com.aavishkar.pace1.location.LocationUpdateState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.aavishkar.pace1.ui.map.LiveMapView
 
 @Composable
 fun RideRecordingScreen(
     rideState: RideState,
     rideMetrics: RideMetrics,
     locationUpdateState: LocationUpdateState?,
-    completedRides: List<RideEntity>,
     hasPermission: Boolean,
     onRequestPermission: () -> Unit,
     onStartRide: () -> Unit,
@@ -49,67 +40,13 @@ fun RideRecordingScreen(
     onResetRide: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val coachManager = remember { PaceCoachManager(context) }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Pace1 Cycling Tracker",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TabRow(selectedTabIndex = selectedTab) {
-            Tab(
-                selected = selectedTab == 0,
-                onClick = { selectedTab = 0 },
-                text = { Text("RECORDING") }
-            )
-            Tab(
-                selected = selectedTab == 1,
-                onClick = { selectedTab = 1 },
-                text = { Text("HISTORY (${completedRides.size})") }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        if (selectedTab == 0) {
-            RecordingTabContent(
-                rideState = rideState,
-                rideMetrics = rideMetrics,
-                locationUpdateState = locationUpdateState,
-                hasPermission = hasPermission,
-                onRequestPermission = onRequestPermission,
-                onStartRide = onStartRide,
-                onStopRide = onStopRide,
-                onResetRide = onResetRide
-            )
-        } else {
-            HistoryTabContent(completedRides = completedRides)
-        }
-    }
-}
-
-@Composable
-fun RecordingTabContent(
-    rideState: RideState,
-    rideMetrics: RideMetrics,
-    locationUpdateState: LocationUpdateState?,
-    hasPermission: Boolean,
-    onRequestPermission: () -> Unit,
-    onStartRide: () -> Unit,
-    onStopRide: () -> Unit,
-    onResetRide: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -119,29 +56,38 @@ fun RecordingTabContent(
             onRequestPermission = onRequestPermission
         )
 
+        // Live Route Map View Area
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(vertical = 8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            LiveMapView(
+                lastLocationPoint = rideMetrics.lastLocationPoint,
+                routePoints = listOfNotNull(rideMetrics.lastLocationPoint)
+            )
+        }
+
+        // Live Cycling Metrics Panel
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "CURRENT SPEED (FILTERED)",
+                text = "CURRENT SPEED",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
             Text(
                 text = formatSpeedKmh(rideMetrics.currentSpeedMps),
-                fontSize = 44.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Text(
-                text = "Raw Speed: ${formatSpeedKmh(rideMetrics.rawSpeedMps)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -181,36 +127,27 @@ fun RecordingTabContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Debug & Diagnostics Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text(
-                        text = "Diagnostics & Sensor Health",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "GPS Acc: ${if (rideMetrics.currentAccuracyMeters > 0) "±%.1fm".format(rideMetrics.currentAccuracyMeters) else "N/A"} | Raw Points: ${rideMetrics.totalRawPoints} (Acc: ${rideMetrics.acceptedPoints}, Rej: ${rideMetrics.rejectedPoints})",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Text(
-                        text = "Sensors: Accel [${if (rideMetrics.hasAccelerometer) "OK" else "N/A"}] | Gyro [${if (rideMetrics.hasGyroscope) "OK" else "N/A"}] | Baro [${if (rideMetrics.hasBarometer) "OK" else "N/A"}]",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+            // Tell Me My Stats Button (During Active Recording)
+            if (rideState == RideState.RECORDING) {
+                Button(
+                    onClick = { coachManager.speakRideStats(rideMetrics) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) {
+                    Text("TELL ME MY STATS (VOICE)", fontWeight = FontWeight.Bold)
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        // Action Controls (START / STOP / NEW)
+        // Controls
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (rideState) {
@@ -249,62 +186,6 @@ fun RecordingTabContent(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun HistoryTabContent(completedRides: List<RideEntity>) {
-    if (completedRides.isEmpty()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text("No completed rides recorded yet.")
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(completedRides) { ride ->
-                RideHistoryCard(ride = ride)
-            }
-        }
-    }
-}
-
-@Composable
-fun RideHistoryCard(ride: RideEntity) {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-    val dateStr = dateFormat.format(Date(ride.startTimeMillis))
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = dateStr,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Dist: ${formatDistance(ride.distanceMeters)}")
-                Text("Time: ${formatElapsedTime(ride.elapsedTimeSeconds)}")
-                Text("Avg: ${formatSpeedKmh(ride.averageSpeedMps)}")
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Points: ${ride.totalRawPoints} raw (${ride.acceptedPoints} acc, ${ride.rejectedPoints} rej) | Max: ${formatSpeedKmh(ride.maxSpeedMps)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }

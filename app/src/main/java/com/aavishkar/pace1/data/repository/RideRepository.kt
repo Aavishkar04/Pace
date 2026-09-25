@@ -92,7 +92,7 @@ class RideRepository(
         var addedDistance = 0f
         var filteredSpeed = 0f
 
-        if (point.accuracy > 25.0f) {
+        if (point.accuracy > 40.0f) {
             // Poor accuracy fix -> reject for distance accumulation, keep raw sample
             isAccepted = false
         } else if (previousPoint != null) {
@@ -105,24 +105,20 @@ class RideRepository(
             val deltaTimeSec = maxOf(0.1f, (point.timestamp - previousPoint.timestamp) / 1000f)
             val impliedSpeed = deltaDistance / deltaTimeSec
             
-            // FusedLocationProvider often reports speed exactly 0.0 when it detects the phone is perfectly still
-            val isReportedStationary = point.hasSpeed && point.speed < 0.5f
+            // Allow very small distance updates when we are actually moving, 
+            // but block 0-speed table jitter
+            val isReportedStationary = point.hasSpeed && point.speed < 0.2f
 
-            if (impliedSpeed > 35.0f && deltaDistance > 30.0f) {
+            if (impliedSpeed > 35.0f && deltaDistance > 40.0f) {
                 // Unrealistic GPS jump rejection
                 isAccepted = false
-            } else if (isReportedStationary && deltaDistance < 10.0f) {
+            } else if (isReportedStationary && deltaDistance < 5.0f) {
                 // System says we are stationary, and the jump is small. Trust it.
                 isAccepted = true
                 addedDistance = 0f
                 filteredSpeed = 0f
-            } else if (deltaDistance < 3.0f || impliedSpeed < 0.8f) {
-                // Stationary noise / table jitter -> zero speed, 0 added distance
-                isAccepted = true
-                addedDistance = 0f
-                filteredSpeed = 0f
             } else {
-                // Valid cycling movement
+                // We are genuinely moving inside the house or outside
                 isAccepted = true
                 addedDistance = deltaDistance
                 filteredSpeed = if (point.hasSpeed && point.speed > 0f) point.speed else impliedSpeed

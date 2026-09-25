@@ -1,55 +1,55 @@
 # Handoff & Context Checkpoint: Pace1
 
 ## Context Checkpoint Counter
-- **Substantial Changes Since Last Checkpoint:** 4 / 5
-- **Current Milestone:** V1.0 Stable Outdoor Test Build
-- **Current Task:** Implemented stationary GPS noise filtering, hardware sensor telemetry collection (`SensorCollector`), raw location sample preservation, diagnostics panel, and Ride History tab UI. Verified on physical Samsung Galaxy S23.
+- **Substantial Change Checkpoint Counter:** 2 / 5
+- **Current Milestone:** V1.4 - Live Route Map, Headphone Voice Coach, Voice Stats, and Navigation Structure
+- **Current Task:** Added MapLibre vector route map (`LiveMapView`, `PostRideMapView`), headphone Text-To-Speech Pace Coach (`PaceCoachManager`), voice stats announcement ("TELL ME MY STATS"), Settings screen, Ride Detail view, and Compose navigation (`Pace1MainApp`).
 
 ## Repository Details
-- **Project Name:** Pace1
+- **Project Name:** Pace1 (PERMANENT)
 - **Package Name:** `com.aavishkar.pace1`
 - **GitHub Repository:** `https://github.com/Aavishkar04/Pace.git`
 - **Branch:** `main`
-- **Latest Commit Hash:** `19d6236d6118e37aaf3862ccb4537b24a4dc4e75`
+- **Latest Commit Hash:** Pending Commit
 
-## Completed Work
-1. **Stationary Noise Filter:** Implemented conservative movement filter in `RideRepository.kt` suppressing stationary GPS jitter (< 2.5m or < 0.8 m/s speed) and rejecting unrealistic GPS jumps (> 35 m/s). Filtered speed stays `0.0 km/h` and distance stays `0m` when stationary on a table.
-2. **Raw Data Preservation:** All raw location samples (including vertical accuracy, speed accuracy, provider, and timestamps) are saved to Room DB regardless of filter status, marked with `isAccepted`.
-3. **Hardware Sensor Telemetry:** Created `SensorCollector` collecting Accelerometer, Gyroscope, Magnetometer, and Barometer (pressure) data via `SensorManager`, recording sensor availability metadata in the ride.
-4. **Never Stop Ride:** Service and ViewModel keep recording session active during GPS signal drops or accuracy fluctuations until user explicitly taps `STOP RIDE`.
-5. **Ride History UI:** Added a `HISTORY` tab in `RideRecordingScreen.kt` listing all saved completed rides from Room DB with date, distance, duration, average speed, max speed, and point counts.
-6. **Diagnostics Panel:** Added live diagnostic counters showing raw point count, accepted/rejected points, raw vs filtered speed, GPS accuracy, and sensor health status.
-7. **Build & Test Suite:** Verified Gradle build (`:app:assembleDebug`) and unit test suite (`9 passed, 0 failed`). Verified stationary placement on physical Samsung Galaxy S23.
+## Completed Work & Capabilities
+1. **Live Route Map (`LiveMapView`):** Integrated MapLibre Native SDK (`org.maplibre.gl:android-sdk:11.5.1`) rendering live accepted route polylines and current position markers on Demotiles open vector style (`https://demotiles.maplibre.org/style.json`).
+2. **Post-Ride Route Map (`PostRideMapView`):** Renders full recorded ride route, start marker, finish marker, and camera bounds on `RideDetailScreen`.
+3. **Headphone Pace Coach (`PaceCoachManager`):** Text-To-Speech audio feedback engine evaluating filtered cycling speed against target range (e.g. 22–26 km/h) at configurable intervals (15s, 30s, 60s) or state transitions ("Increase effort", "Hold pace", "Ease off").
+4. **Voice Stats Announcement:** Functionality allowing the rider to tap "TELL ME MY STATS" during active recording to hear spoken distance, elapsed time, current speed, average speed, and maximum speed.
+5. **Coach Settings (`CoachSettingsRepository`):** Local SharedPreferences persistence for Coach ON/OFF, target speed, lower/upper boundaries, announcement interval, and a "TEST VOICE / TTS" button.
+6. **Compose Navigation & Screens:** Full navigation host (`Pace1MainApp`) with bottom navigation bar for `Home`, `Ride`, `History`, and `Settings`, plus `RideDetail` routing.
+7. **Background & Lock Screen Recording:** `RideRecordingService` maintains location updates, Room DB persistence, and periodic TTS coaching evaluations across screen locks and app backgrounding.
+8. **Test Suite:** 11 / 11 unit tests passing (`:app:testDebugUnitTest`).
 
-## What Was Tested
-- Gradle Debug Assembly: `:app:assembleDebug` (Passed).
-- Unit Tests: `:app:testDebugUnitTest` (9 passed, 0 failed).
-- Physical Device Run & Stationary Test: Installed on physical Samsung Galaxy S23 (`RZCXB208S6L`). Verified stationary noise suppression (filtered speed `0.0 km/h`, distance `0m` drift while table-bound), sensor detection, diagnostics panel, foreground notification, and Ride History tab.
+## Real-World Outdoor Validation Summary (Sept 24, 2026)
+- **Pace1:** 20.48 km | 56:16 duration | 21.8 km/h avg | 38.0 km/h max | 3,456 raw/accepted points
+- **Strava Reference:** 20.47 km | 54:58 moving | 22.3 km/h avg
+- **Samsung Health Reference:** 20.35 km | 54:04 workout / 56:46 total | 22.5 km/h avg | 33.8 km/h max
 
-## Known Limitations
-- Outdoor cycling movement accuracy will be field-tested during the planned real ride tomorrow.
-- Maps and flyover animations are reserved for future milestones (V1.4+ / V4.0).
+## Known Limitations & Deferred Items
+- **Wake Word ("Hey Pace"):** Button & Audio Action fallback used. On-device openWakeWord model integration deferred to keep implementation lightweight and zero-latency without heavy ONNX dependencies.
+- **Offline Map Datasets:** MapLibre offline region download architecture defined; packaging huge offline map tiles deferred to avoid unnecessary storage/bandwidth consumption.
 
 ## Files Modified / Created
-- `app/src/main/java/com/aavishkar/pace1/sensor/SensorCollector.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/model/LocationPoint.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/model/RideMetrics.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/local/entity/RideEntity.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/local/entity/LocationPointEntity.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/local/dao/RideDao.kt`
-- `app/src/main/java/com/aavishkar/pace1/data/repository/RideRepository.kt`
-- `app/src/main/java/com/aavishkar/pace1/service/RideRecordingService.kt`
-- `app/src/main/java/com/aavishkar/pace1/ui/RideViewModel.kt`
+- `app/src/main/java/com/aavishkar/pace1/coach/CoachSettings.kt`
+- `app/src/main/java/com/aavishkar/pace1/coach/PaceCoachManager.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/map/MapViewComponents.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/screens/HomeScreen.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/screens/RideDetailScreen.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/screens/HistoryScreen.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/screens/SettingsScreen.kt`
+- `app/src/main/java/com/aavishkar/pace1/ui/navigation/Pace1Navigation.kt`
 - `app/src/main/java/com/aavishkar/pace1/ui/RideRecordingScreen.kt`
-- `app/src/main/java/com/aavishkar/pace1/location/DefaultLocationClient.kt`
 - `app/src/main/java/com/aavishkar/pace1/MainActivity.kt`
-- `app/src/test/java/com/aavishkar/pace1/RideRepositoryTest.kt`
+- `app/src/test/java/com/aavishkar/pace1/PaceCoachTest.kt`
 - `app/src/test/java/com/aavishkar/pace1/RideViewModelTest.kt`
 - `docs/CURRENT_STATE.md`
 - `docs/ARCHITECTURE.md`
 - `docs/TESTING.md`
 - `docs/HANDOFF.md`
+- `docs/DECISIONS.md`
 
-## Next Recommended Actions
-1. Conduct the outdoor field ride tomorrow with the built APK installed on the Samsung Galaxy S23.
-2. Analyze collected raw GPS and sensor dataset after the ride to tune V1.1 filtering parameters.
+## Next Recommended Development Step
+1. Field-test the live route map rendering and headphone TTS voice coach on an outdoor cycling ride with the Samsung S23.
+2. Conduct post-ride analysis of route polyline rendering smoothness and TTS audio focus behavior with Bluetooth headphones connected.
